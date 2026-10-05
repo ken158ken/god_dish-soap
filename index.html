@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>神仙滷味洗碗精製程</title>
+<title>神仙滷味洗碗精製程與配方</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap">
 <style>
-/* Layout: 單張批次單。窄欄紙面置中，左側固定欄放步驟編號，步驟 4–8 的慢攪區整段滿版上色 */
+/* Layout: 單張批次單。最上面一條固定的秤重提醒，下面依序是：選批量 → 配方表 → 製程 → 原料庫存 */
 :root {
   color-scheme: light;
   --bg: #E9F0EE;
@@ -18,36 +18,29 @@
   --accent-ink: #9C4700;
   --accent-wash: #FBEBDD;
   --accent-line: #EBCDB2;
-  --a: #0B6E6C; --a-wash: #D5EEEA;
-  --b: #3A4AA6; --b-wash: #DFE3F6;
-  --c: #7D5200; --c-wash: #F5E7C4;
-  --d: #46545F; --d-wash: #E1E7EB;
+  --warn: #C8102E;
+  --warn-wash: #FDE8EA;
+  --on-warn: #FFFFFF;
+  --a: #0B6E6C;
+  --b: #3A4AA6;
+  --c: #7D5200;
+  --d: #46545F;
   --font-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
   --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
   --font-data: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
   --pad: clamp(1.25rem, 4vw, 3rem);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root {
+    color-scheme: dark;
     --bg: #0E1819; --sheet: #152223; --ink: #E2EDEB; --muted: #92A7A5; --line: #2B3E3F;
     --accent: #FF9447; --accent-ink: #FFB27A; --accent-wash: #2C1E10; --accent-line: #4A321B;
-    --a: #6AD3CC; --a-wash: #113837;
-    --b: #A8B4FF; --b-wash: #222A52;
-    --c: #EDC063; --c-wash: #3A2D0E;
-    --d: #B5C3CE; --d-wash: #28333B;
-    color-scheme: dark;
+    --warn: #FF6B6B; --warn-wash: #3A1418; --on-warn: #1A0A0B;
+    --a: #6AD3CC; --b: #A8B4FF; --c: #EDC063; --d: #B5C3CE;
   }
 }
-:root[data-theme="dark"] {
-  --bg: #0E1819; --sheet: #152223; --ink: #E2EDEB; --muted: #92A7A5; --line: #2B3E3F;
-  --accent: #FF9447; --accent-ink: #FFB27A; --accent-wash: #2C1E10; --accent-line: #4A321B;
-  --a: #6AD3CC; --a-wash: #113837;
-  --b: #A8B4FF; --b-wash: #222A52;
-  --c: #EDC063; --c-wash: #3A2D0E;
-  --d: #B5C3CE; --d-wash: #28333B;
-  color-scheme: dark;
-}
 
+* { box-sizing: border-box; }
 body {
   margin: 0;
   background: var(--bg);
@@ -55,13 +48,48 @@ body {
   font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.75;
-  padding-inline: 16px;
-  padding-block: 2rem 4rem;
 }
-h1, h2, h3, p, dl, dd, ol { margin: 0; }
+h1, h2, h3, h4, p, dl, dd, ol, ul { margin: 0; }
+ol, ul { list-style: none; padding: 0; }
 
+/* 秤重提醒：整頁最常弄錯的一件事，捲到哪都看得到 */
+.alarm {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .25rem .75rem;
+  padding: calc(.5rem + env(safe-area-inset-top, 0px)) 16px .5rem;
+  background: var(--warn-wash);
+  border-bottom: 2px solid var(--warn);
+  color: var(--warn);
+  font-size: .875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+}
+.flash {
+  padding: .1rem .6rem;
+  border-radius: 3px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--warn);
+  animation: flash 1s steps(1, end) infinite;
+}
+@keyframes flash {
+  0% { color: var(--on-warn); background: var(--warn); }
+  50% { color: var(--warn); background: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flash { animation: none; color: var(--on-warn); background: var(--warn); }
+}
+
+.page { padding-inline: 16px; padding-block: 2rem 4rem; }
 .sheet {
-  max-width: 46rem;
+  max-width: 48rem;
   margin-inline: auto;
   background: var(--sheet);
   border: 1px solid var(--line);
@@ -69,7 +97,7 @@ h1, h2, h3, p, dl, dd, ol { margin: 0; }
   padding: var(--pad);
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 2.75rem;
 }
 
 .head { display: flex; flex-direction: column; gap: .75rem; }
@@ -82,32 +110,134 @@ h1, h2, h3, p, dl, dd, ol { margin: 0; }
 h1 {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: clamp(2.5rem, 8vw, 4rem);
-  line-height: 1.1;
+  font-size: clamp(2.25rem, 8vw, 3.5rem);
+  line-height: 1.15;
   letter-spacing: .04em;
   text-wrap: balance;
 }
 .lede { max-width: 34em; color: var(--muted); }
-
 .meta {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   gap: 1rem 1.5rem;
-  margin-top: .75rem;
+  margin-top: .5rem;
   padding-block: 1rem;
   border-block: 1px solid var(--line);
 }
 .meta div { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
-.meta dt {
+.meta dt { font-size: .75rem; letter-spacing: .08em; color: var(--muted); }
+.meta dd { font-weight: 500; line-height: 1.5; }
+
+.block { display: flex; flex-direction: column; gap: .9rem; min-width: 0; }
+.block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .25rem 1rem;
+}
+h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+.block-head span, .stage-head span {
+  font-family: var(--font-data);
   font-size: .75rem;
-  letter-spacing: .08em;
+  letter-spacing: .04em;
   color: var(--muted);
 }
-.meta dd { font-weight: 500; line-height: 1.5; }
-.xref { font-size: .9375rem; color: var(--muted); }
-a { color: var(--accent-ink); text-underline-offset: .2em; }
-a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.cap { max-width: 34em; color: var(--muted); font-size: .9375rem; }
 
+/* 批量選擇 */
+.seg {
+  display: inline-flex;
+  align-self: flex-start;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.seg label { position: relative; cursor: pointer; }
+.seg input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.seg span {
+  display: block;
+  min-width: 5rem;
+  padding: .5rem 1.25rem;
+  text-align: center;
+  font-family: var(--font-data);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+.seg label + label span { border-left: 2px solid var(--ink); }
+.seg input:checked + span { background: var(--ink); color: var(--sheet); }
+.seg input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: -3px; }
+
+/* 只顯示選到的那個批量 */
+[data-batch="4"] .q2, [data-batch="4"] .q1,
+[data-batch="2"] .q4, [data-batch="2"] .q1,
+[data-batch="1"] .q4, [data-batch="1"] .q2 { display: none; }
+
+.scroll { overflow-x: auto; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.formula { min-width: 31rem; }
+.stock { min-width: 34rem; }
+th, td {
+  padding: .6rem .75rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+th:first-child, td:first-child { padding-left: 0; }
+thead th {
+  font-size: .75rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--muted);
+  white-space: nowrap;
+  vertical-align: bottom;
+  border-bottom: 2px solid var(--ink);
+}
+thead th small { display: block; font-size: .6875rem; font-weight: 400; letter-spacing: 0; }
+tbody tr:last-child td { border-bottom: 0; }
+.cph { width: 1.5rem; }
+.n { text-align: right; font-family: var(--font-data); white-space: nowrap; }
+thead .n { font-family: var(--font-body); }
+td.n { font-size: .9375rem; line-height: 1.87; }
+[data-batch="4"] .c4, [data-batch="2"] .c2, [data-batch="1"] .c1 {
+  background: var(--accent-wash);
+  color: var(--ink);
+  font-weight: 700;
+}
+.free { color: var(--accent-ink); font-size: .875rem; line-height: 2; text-align: right; }
+
+.ph {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  font-family: var(--font-data);
+  font-size: .75rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--sheet);
+}
+.ph.a { background: var(--a); }
+.ph.b { background: var(--b); }
+.ph.c { background: var(--c); }
+.ph.d { background: var(--d); }
+.ing { display: flex; flex-direction: column; min-width: 0; }
+.ing b { font-weight: 500; }
+.ing small { color: var(--muted); font-size: .75rem; line-height: 1.5; }
+
+/* 製程 */
+.stages { display: flex; flex-direction: column; gap: 2rem; }
 .stage { display: flex; flex-direction: column; min-width: 0; }
 .stage-head {
   display: flex;
@@ -115,24 +245,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
   align-items: baseline;
   justify-content: space-between;
   gap: .25rem 1rem;
-  padding-bottom: .5rem;
+  padding-bottom: .4rem;
   border-bottom: 2px solid var(--ink);
 }
-h2 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.375rem;
-  line-height: 1.3;
-  text-wrap: balance;
-}
-.stage-head span {
-  font-family: var(--font-data);
-  font-size: .75rem;
-  letter-spacing: .04em;
-  color: var(--muted);
-}
-
-.steps { list-style: none; padding: 0; }
+h3 { font-size: 1.125rem; font-weight: 700; line-height: 1.4; }
 .step {
   display: grid;
   grid-template-columns: 3.25rem minmax(0, 1fr);
@@ -149,41 +265,51 @@ h2 {
   font-variant-numeric: tabular-nums;
   color: var(--accent);
 }
-.body { display: flex; flex-direction: column; gap: .45rem; min-width: 0; }
-h3 { font-size: 1.0625rem; font-weight: 700; line-height: 1.5; }
+.body { display: flex; flex-direction: column; gap: .55rem; min-width: 0; }
+h4 { font-size: 1.0625rem; font-weight: 700; line-height: 1.5; }
 .body p { max-width: 34em; }
 .body em { font-style: normal; font-weight: 500; color: var(--accent-ink); }
+.warn-note {
+  padding: .5rem .75rem;
+  border: 2px solid var(--warn);
+  border-radius: 3px;
+  background: var(--warn-wash);
+  color: var(--warn);
+  font-weight: 700;
+}
 
-.chips { display: flex; flex-wrap: wrap; gap: .4rem; }
-.chip {
-  display: inline-flex;
+/* 每一步要秤的東西 */
+.weigh {
+  max-width: 24rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--sheet);
+}
+.weigh-h {
+  padding: .3rem .75rem;
+  border-bottom: 1px solid var(--line);
+  font-size: .75rem;
+  letter-spacing: .04em;
+  color: var(--muted);
+}
+.weigh li {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
   align-items: center;
-  gap: .4rem;
-  padding: .15rem .65rem .15rem .2rem;
-  border-radius: 999px;
-  font-size: .8125rem;
-  line-height: 1.5;
+  gap: .6rem;
+  padding: .45rem .75rem;
 }
-.chip b {
-  display: inline-grid;
-  place-items: center;
-  width: 1.3rem;
-  height: 1.3rem;
-  border-radius: 50%;
+.weigh li + li { border-top: 1px solid var(--line); }
+.weigh .nm { font-weight: 500; }
+.amt {
   font-family: var(--font-data);
-  font-size: .6875rem;
+  font-size: 1.1875rem;
   font-weight: 600;
-  line-height: 1;
-  color: var(--sheet);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.chip.a { background: var(--a-wash); color: var(--a); }
-.chip.a b { background: var(--a); }
-.chip.b { background: var(--b-wash); color: var(--b); }
-.chip.b b { background: var(--b); }
-.chip.c { background: var(--c-wash); color: var(--c); }
-.chip.c b { background: var(--c); }
-.chip.d { background: var(--d-wash); color: var(--d); }
-.chip.d b { background: var(--d); }
+.amt i { font-style: normal; color: var(--warn); }
+.amt.free { font-family: var(--font-body); font-size: .875rem; font-weight: 500; }
 
 /* 慢攪區：步驟 4–8 共用一條規則，所以整段包在同一塊底色裡 */
 .slow {
@@ -192,6 +318,7 @@ h3 { font-size: 1.0625rem; font-weight: 700; line-height: 1.5; }
   padding: 1.5rem var(--pad);
 }
 .slow .step { border-bottom-color: var(--accent-line); }
+.slow .weigh, .slow .weigh-h, .slow .weigh li + li { border-color: var(--accent-line); }
 .rule-note {
   display: grid;
   grid-template-columns: 3.25rem minmax(0, 1fr);
@@ -204,160 +331,303 @@ h3 { font-size: 1.0625rem; font-weight: 700; line-height: 1.5; }
 .rule-note .sym { font-family: var(--font-data); font-size: 1.25rem; line-height: 1.4; }
 .rule-note .txt { max-width: 34em; }
 
-.foot {
-  font-family: var(--font-data);
-  font-size: .75rem;
-  color: var(--muted);
-  border-top: 1px solid var(--line);
-  padding-top: 1rem;
-}
-
-@media (max-width: 30rem) {
+@media (max-width: 34rem) {
+  th, td { padding: .55rem .5rem; }
   .step, .rule-note { grid-template-columns: 2.25rem minmax(0, 1fr); column-gap: .75rem; }
   .num { font-size: 1.5rem; }
+  /* 手機上配方表只留選到的那一欄，不用左右滑 */
+  .formula { min-width: 0; }
+  [data-batch="4"] .formula .c2, [data-batch="4"] .formula .c1,
+  [data-batch="2"] .formula .c4, [data-batch="2"] .formula .c1,
+  [data-batch="1"] .formula .c4, [data-batch="1"] .formula .c2 { display: none; }
 }
 </style>
 </head>
 <body>
+<div class="alarm" role="note" aria-label="秤重提醒">
+  <strong class="flash">秤重，不是看體積</strong>
+  <span>用量都是公克（g）。看秤的數字，不要看量筒的 mL 刻度。</span>
+</div>
 
-<main class="sheet">
+<div class="page">
+<main class="sheet" id="sheet" data-batch="4">
   <header class="head">
-    <p class="eyebrow">神仙滷味洗碗精 · 批次製程</p>
-    <h1>製程</h1>
-    <p class="lede">九個步驟：備好兩支量筒，先把 A 相攪到完全溶解，再依序慢慢加入 B、C 相和鹽，最後裝瓶。</p>
+    <p class="eyebrow">神仙滷味洗碗精</p>
+    <h1>製程與配方</h1>
+    <p class="lede">先選這次要做幾公升，照配方表備料，再照製程一步一步加。</p>
     <dl class="meta">
-      <div><dt>批量</dt><dd>1 kg（大概 1 L）<br>4 kg（大概 4 L）</dd></div>
       <div><dt>混合容器</dt><dd>最大的量筒（5 L）</dd></div>
       <div><dt>秤量</dt><dd>2000 mL 量筒，每次扣重</dd></div>
       <div><dt>攪拌</dt><dd>大湯匙</dd></div>
     </dl>
   </header>
 
-  <section class="stage" aria-labelledby="s-prep">
-    <div class="stage-head">
-      <h2 id="s-prep">備量筒</h2>
-      <span>步驟 1–2</span>
+  <section class="block" aria-labelledby="h-pick">
+    <h2 id="h-pick">這次要做多少</h2>
+    <div class="seg" role="radiogroup" aria-labelledby="h-pick">
+      <label><input type="radio" name="batch" id="batch-4" value="4" checked><span>4 L</span></label>
+      <label><input type="radio" name="batch" id="batch-2" value="2"><span>2 L</span></label>
+      <label><input type="radio" name="batch" id="batch-1" value="1"><span>1 L</span></label>
     </div>
-    <ol class="steps">
-      <li class="step">
-        <span class="num" aria-hidden="true">1</span>
-        <div class="body">
-          <h3>混合容器</h3>
-          <p>準備一個最大的量筒當作混合的容器（可以去正一買 5 L，我記得洗菜你們用的超大量筒也可以）。</p>
-        </div>
-      </li>
-      <li class="step">
-        <span class="num" aria-hidden="true">2</span>
-        <div class="body">
-          <h3>秤量用量筒</h3>
-          <p>秤量可以用我買的 2000 mL 量筒（<em>記得每次秤料要扣重</em>）。</p>
-        </div>
-      </li>
-    </ol>
+    <p class="cap">選了之後，配方表和每個步驟要秤的公克數會跟著換。買的原料總共可以做&nbsp;6&nbsp;L。</p>
   </section>
 
-  <section class="stage" aria-labelledby="s-a">
-    <div class="stage-head">
-      <h2 id="s-a">A 相</h2>
-      <span>步驟 3</span>
+  <section class="block" aria-labelledby="h-formula">
+    <div class="block-head">
+      <h2 id="h-formula">配方</h2>
+      <span>用量單位 g（重量）</span>
     </div>
-    <ol class="steps" start="3">
-      <li class="step">
-        <span class="num" aria-hidden="true">3</span>
-        <div class="body">
-          <h3>溶解 A 相</h3>
-          <p>2000 mL 量筒秤純露（或水）＋甘油 glycerin＋丙二醇 PG (propylene glycol)，倒入超大量筒，用大湯匙完全攪拌均勻溶解（<em>注意底部會沉積，要確實拿起來看確認沒有沉積</em>）。</p>
-          <div class="chips">
-            <span class="chip a"><b>A</b>柑橘純露＋水</span>
-            <span class="chip a"><b>A</b>甘油</span>
-            <span class="chip a"><b>A</b>丙二醇 PG</span>
-          </div>
-        </div>
-      </li>
-    </ol>
+    <div class="scroll">
+      <table class="formula">
+        <thead>
+          <tr>
+            <th scope="col" class="cph">相</th>
+            <th scope="col">成分</th>
+            <th scope="col" class="n">%</th>
+            <th scope="col" class="n c4">做 4 L<small>4 kg 配方</small></th>
+            <th scope="col" class="n c2">做 2 L<small>2 kg 配方</small></th>
+            <th scope="col" class="n c1">做 1 L<small>1 kg 配方</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="cph"><span class="ph a">A</span></td>
+            <td><span class="ing"><b>柑橘純露＋水</b><small>可不加水只加純露</small></span></td>
+            <td class="n">30.0</td><td class="n c4">1200</td><td class="n c2">600</td><td class="n c1">300</td>
+          </tr>
+          <tr>
+            <td class="cph"><span class="ph a">A</span></td>
+            <td><span class="ing"><b>甘油</b><small>glycerin</small></span></td>
+            <td class="n">5.0</td><td class="n c4">200</td><td class="n c2">100</td><td class="n c1">50</td>
+          </tr>
+          <tr>
+            <td class="cph"><span class="ph a">A</span></td>
+            <td><span class="ing"><b>丙二醇 PG</b><small>propylene glycol</small></span></td>
+            <td class="n">2.5</td><td class="n c4">100</td><td class="n c2">50</td><td class="n c1">25</td>
+          </tr>
+          <tr>
+            <td class="cph"><span class="ph b">B</span></td>
+            <td><span class="ing"><b>SLES 35%</b><small>Sodium Lauryl Ether Sulfate 35%</small></span></td>
+            <td class="n">43.0</td><td class="n c4">1720</td><td class="n c2">860</td><td class="n c1">430</td>
+          </tr>
+          <tr>
+            <td class="cph"><span class="ph b">B</span></td>
+            <td><span class="ing"><b>CAPB</b><small>Cocamidopropyl Betaine</small></span></td>
+            <td class="n">16.5</td><td class="n c4">660</td><td class="n c2">330</td><td class="n c1">165</td>
+          </tr>
+          <tr>
+            <td class="cph"><span class="ph b">B</span></td>
+            <td><span class="ing"><b>Cocamide DEA</b></span></td>
+            <td class="n">2.0</td><td class="n c4">80</td><td class="n c2">40</td><td class="n c1">20</td>
+          </tr>
+          <tr>
+            <td class="cph"><span class="ph b">B</span></td>
+            <td><span class="ing"><b>PEG-7 GC</b><small>PEG-7 Glyceryl Cocoate</small></span></td>
+            <td class="n">2.0</td><td class="n c4">80</td><td class="n c2">40</td><td class="n c1">20</td>
+          </tr>
+          <tr>
+            <td class="cph"><span class="ph c">C</span></td>
+            <td><span class="ing"><b>PE 9010</b></span></td>
+            <td class="n">1.0</td><td class="n c4">40</td><td class="n c2">20</td><td class="n c1">10</td>
+          </tr>
+          <tr>
+            <td class="cph"><span class="ph d">D</span></td>
+            <td><span class="ing"><b>NaCl</b><small>食鹽</small></span></td>
+            <td class="n">—</td>
+            <td class="free" colspan="3">依稠度添加，見步驟 8</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
-  <section class="stage slow" aria-labelledby="s-slow">
-    <div class="stage-head">
-      <h2 id="s-slow">B、C 相與鹽</h2>
-      <span>步驟 4–8 · 慢慢攪</span>
+  <section class="block" id="process" aria-labelledby="h-process">
+    <div class="block-head">
+      <h2 id="h-process">製程</h2>
+      <span>共 9 步</span>
     </div>
-    <p class="rule-note">
-      <span class="sym" aria-hidden="true">※</span>
-      <span class="txt">4–8 一定要慢慢攪避免太多氣泡，鹽撒進去要確實地進到水裡不要卡在氣泡上。</span>
-    </p>
-    <ol class="steps" start="4">
-      <li class="step">
-        <span class="num" aria-hidden="true">4</span>
-        <div class="body">
-          <h3>加 SLES 35%</h3>
-          <p>緩慢從量筒壁倒入 SLES 35% (Sodium Lauryl Ether Sulfate 35%)，緩慢攪拌均勻（<em>盡量不要攪入空氣</em>），記得要完全均勻。</p>
-          <div class="chips">
-            <span class="chip b"><b>B</b>SLES 35%</span>
-          </div>
-        </div>
-      </li>
-      <li class="step">
-        <span class="num" aria-hidden="true">5</span>
-        <div class="body">
-          <h3>加 CAPB</h3>
-          <p>緩慢從量筒壁倒入 CAPB (Cocamidopropyl Betaine)，緩慢攪拌均勻（<em>盡量不要攪入空氣</em>），記得要完全均勻。</p>
-          <div class="chips">
-            <span class="chip b"><b>B</b>CAPB</span>
-          </div>
-        </div>
-      </li>
-      <li class="step">
-        <span class="num" aria-hidden="true">6</span>
-        <div class="body">
-          <h3>加 Cocamide DEA</h3>
-          <p>緩慢從量筒壁倒入 Cocamide DEA，緩慢攪拌均勻（<em>盡量不要攪入空氣</em>），記得要完全均勻。</p>
-          <div class="chips">
-            <span class="chip b"><b>B</b>Cocamide DEA</span>
-          </div>
-        </div>
-      </li>
-      <li class="step">
-        <span class="num" aria-hidden="true">7</span>
-        <div class="body">
-          <h3>加 PEG-7 GC 和 PE 9010</h3>
-          <p>緩慢從量筒壁倒入 PEG-7 GC (PEG-7 Glyceryl Cocoate)＋PE 9010，緩慢攪拌均勻（<em>盡量不要攪入空氣</em>），記得要完全均勻。</p>
-          <div class="chips">
-            <span class="chip b"><b>B</b>PEG-7 GC</span>
-            <span class="chip c"><b>C</b>PE 9010</span>
-          </div>
-        </div>
-      </li>
-      <li class="step">
-        <span class="num" aria-hidden="true">8</span>
-        <div class="body">
-          <h3>撒鹽調稠度</h3>
-          <p>現在你會發現很水，慢慢撒鹽（<em>要散開</em>）邊緩慢讓鹽完全溶解，加到自己喜歡的稠度就可以了。</p>
-          <div class="chips">
-            <span class="chip d"><b>D</b>NaCl 食鹽</span>
-          </div>
-        </div>
-      </li>
-    </ol>
+
+    <div class="stages">
+      <section class="stage" aria-labelledby="s-prep">
+        <div class="stage-head"><h3 id="s-prep">備量筒</h3><span>步驟 1–2</span></div>
+        <ol class="steps">
+          <li class="step">
+            <span class="num" aria-hidden="true">1</span>
+            <div class="body">
+              <h4>混合容器</h4>
+              <p>準備一個最大的量筒當作混合的容器（可以去正一買 5 L，我記得洗菜你們用的超大量筒也可以）。</p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="num" aria-hidden="true">2</span>
+            <div class="body">
+              <h4>秤量用量筒</h4>
+              <p>秤量可以用我買的 2000 mL 量筒（<em>記得每次秤料要扣重</em>）。</p>
+              <p class="warn-note">秤重，不是看體積。量筒放到秤上先歸零（扣重），再看秤的公克數加料；量筒上的 mL 刻度不要看。</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="stage" aria-labelledby="s-a">
+        <div class="stage-head"><h3 id="s-a">A 相</h3><span>步驟 3</span></div>
+        <ol class="steps" start="3">
+          <li class="step">
+            <span class="num" aria-hidden="true">3</span>
+            <div class="body">
+              <h4>溶解 A 相</h4>
+              <p>2000 mL 量筒秤純露（或水）＋甘油 glycerin＋丙二醇 PG (propylene glycol)，倒入超大量筒，用大湯匙完全攪拌均勻溶解（<em>注意底部會沉積，要確實拿起來看確認沒有沉積</em>）。</p>
+              <div class="weigh">
+                <p class="weigh-h">做 <span class="q4">4</span><span class="q2">2</span><span class="q1">1</span> L 要秤</p>
+                <ul>
+                  <li><span class="ph a">A</span><span class="nm">柑橘純露＋水</span><span class="amt"><span class="q4">1200</span><span class="q2">600</span><span class="q1">300</span> <i>g</i></span></li>
+                  <li><span class="ph a">A</span><span class="nm">甘油</span><span class="amt"><span class="q4">200</span><span class="q2">100</span><span class="q1">50</span> <i>g</i></span></li>
+                  <li><span class="ph a">A</span><span class="nm">丙二醇 PG</span><span class="amt"><span class="q4">100</span><span class="q2">50</span><span class="q1">25</span> <i>g</i></span></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="stage slow" aria-labelledby="s-slow">
+        <div class="stage-head"><h3 id="s-slow">B、C 相與鹽</h3><span>步驟 4–8 · 慢慢攪</span></div>
+        <p class="rule-note">
+          <span class="sym" aria-hidden="true">※</span>
+          <span class="txt">4–8 一定要慢慢攪避免太多氣泡，鹽撒進去要確實地進到水裡不要卡在氣泡上。</span>
+        </p>
+        <ol class="steps" start="4">
+          <li class="step">
+            <span class="num" aria-hidden="true">4</span>
+            <div class="body">
+              <h4>加 SLES 35%</h4>
+              <p>緩慢從量筒壁倒入 SLES 35% (Sodium Lauryl Ether Sulfate 35%)，緩慢攪拌均勻（<em>盡量不要攪入空氣</em>），記得要完全均勻。</p>
+              <div class="weigh">
+                <p class="weigh-h">做 <span class="q4">4</span><span class="q2">2</span><span class="q1">1</span> L 要秤</p>
+                <ul>
+                  <li><span class="ph b">B</span><span class="nm">SLES 35%</span><span class="amt"><span class="q4">1720</span><span class="q2">860</span><span class="q1">430</span> <i>g</i></span></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="step">
+            <span class="num" aria-hidden="true">5</span>
+            <div class="body">
+              <h4>加 CAPB</h4>
+              <p>緩慢從量筒壁倒入 CAPB (Cocamidopropyl Betaine)，緩慢攪拌均勻（<em>盡量不要攪入空氣</em>），記得要完全均勻。</p>
+              <div class="weigh">
+                <p class="weigh-h">做 <span class="q4">4</span><span class="q2">2</span><span class="q1">1</span> L 要秤</p>
+                <ul>
+                  <li><span class="ph b">B</span><span class="nm">CAPB</span><span class="amt"><span class="q4">660</span><span class="q2">330</span><span class="q1">165</span> <i>g</i></span></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="step">
+            <span class="num" aria-hidden="true">6</span>
+            <div class="body">
+              <h4>加 Cocamide DEA</h4>
+              <p>緩慢從量筒壁倒入 Cocamide DEA，緩慢攪拌均勻（<em>盡量不要攪入空氣</em>），記得要完全均勻。</p>
+              <div class="weigh">
+                <p class="weigh-h">做 <span class="q4">4</span><span class="q2">2</span><span class="q1">1</span> L 要秤</p>
+                <ul>
+                  <li><span class="ph b">B</span><span class="nm">Cocamide DEA</span><span class="amt"><span class="q4">80</span><span class="q2">40</span><span class="q1">20</span> <i>g</i></span></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="step">
+            <span class="num" aria-hidden="true">7</span>
+            <div class="body">
+              <h4>加 PEG-7 GC 和 PE 9010</h4>
+              <p>緩慢從量筒壁倒入 PEG-7 GC (PEG-7 Glyceryl Cocoate)＋PE 9010，緩慢攪拌均勻（<em>盡量不要攪入空氣</em>），記得要完全均勻。</p>
+              <div class="weigh">
+                <p class="weigh-h">做 <span class="q4">4</span><span class="q2">2</span><span class="q1">1</span> L 要秤</p>
+                <ul>
+                  <li><span class="ph b">B</span><span class="nm">PEG-7 GC</span><span class="amt"><span class="q4">80</span><span class="q2">40</span><span class="q1">20</span> <i>g</i></span></li>
+                  <li><span class="ph c">C</span><span class="nm">PE 9010</span><span class="amt"><span class="q4">40</span><span class="q2">20</span><span class="q1">10</span> <i>g</i></span></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="step">
+            <span class="num" aria-hidden="true">8</span>
+            <div class="body">
+              <h4>撒鹽調稠度</h4>
+              <p>現在你會發現很水，慢慢撒鹽（<em>要散開</em>）邊緩慢讓鹽完全溶解，加到自己喜歡的稠度就可以了。</p>
+              <div class="weigh">
+                <p class="weigh-h">不用秤</p>
+                <ul>
+                  <li><span class="ph d">D</span><span class="nm">NaCl 食鹽</span><span class="amt free">撒到喜歡的稠度</span></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="stage" aria-labelledby="s-fill">
+        <div class="stage-head"><h3 id="s-fill">裝瓶</h3><span>步驟 9</span></div>
+        <ol class="steps" start="9">
+          <li class="step">
+            <span class="num" aria-hidden="true">9</span>
+            <div class="body">
+              <h4>倒出裝瓶</h4>
+              <p>從量筒倒出來裝瓶，上面泡泡很多也可以丟掉，設備不夠不好脫泡。</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+    </div>
   </section>
 
-  <section class="stage" aria-labelledby="s-fill">
-    <div class="stage-head">
-      <h2 id="s-fill">裝瓶</h2>
-      <span>步驟 9</span>
+  <section class="block" id="stock" aria-labelledby="h-stock">
+    <div class="block-head">
+      <h2 id="h-stock">原料庫存</h2>
+      <span>扣料 · 單位 g</span>
     </div>
-    <ol class="steps" start="9">
-      <li class="step">
-        <span class="num" aria-hidden="true">9</span>
-        <div class="body">
-          <h3>倒出裝瓶</h3>
-          <p>從量筒倒出來裝瓶，上面泡泡很多也可以丟掉，設備不夠不好脫泡。</p>
-        </div>
-      </li>
-    </ol>
+    <p class="cap">買的原料總共可以做 6 L。做完 6 L 後 SLES 剩 420 g、CAPB 剩 10 g，不夠再做 1 L。</p>
+    <div class="scroll">
+      <table class="stock">
+        <thead>
+          <tr>
+            <th scope="col" class="cph">相</th>
+            <th scope="col">成分</th>
+            <th scope="col" class="n">購買量</th>
+            <th scope="col" class="n">做 4 L 後剩<small>共 4 L</small></th>
+            <th scope="col" class="n">再配 1 L 後剩<small>共 5 L</small></th>
+            <th scope="col" class="n">再配 1 L 後剩<small>共 6 L</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="cph"><span class="ph a">A</span></td><td><span class="ing"><b>柑橘純露＋水</b></span></td><td class="n">2000</td><td class="n">800</td><td class="n">500</td><td class="n">200</td></tr>
+          <tr><td class="cph"><span class="ph a">A</span></td><td><span class="ing"><b>甘油</b></span></td><td class="n">500</td><td class="n">300</td><td class="n">250</td><td class="n">200</td></tr>
+          <tr><td class="cph"><span class="ph a">A</span></td><td><span class="ing"><b>丙二醇 PG</b></span></td><td class="n">500</td><td class="n">400</td><td class="n">375</td><td class="n">350</td></tr>
+          <tr><td class="cph"><span class="ph b">B</span></td><td><span class="ing"><b>SLES 35%</b></span></td><td class="n">3000</td><td class="n">1280</td><td class="n">850</td><td class="n">420</td></tr>
+          <tr><td class="cph"><span class="ph b">B</span></td><td><span class="ing"><b>CAPB</b></span></td><td class="n">1000</td><td class="n">340</td><td class="n">175</td><td class="n">10</td></tr>
+          <tr><td class="cph"><span class="ph b">B</span></td><td><span class="ing"><b>Cocamide DEA</b></span></td><td class="n">500</td><td class="n">420</td><td class="n">400</td><td class="n">380</td></tr>
+          <tr><td class="cph"><span class="ph b">B</span></td><td><span class="ing"><b>PEG-7 GC</b></span></td><td class="n">200</td><td class="n">120</td><td class="n">100</td><td class="n">80</td></tr>
+          <tr><td class="cph"><span class="ph c">C</span></td><td><span class="ing"><b>PE 9010</b></span></td><td class="n">100</td><td class="n">60</td><td class="n">50</td><td class="n">40</td></tr>
+        </tbody>
+      </table>
+    </div>
   </section>
-
-  <footer class="foot">摘自 無題 1.ods · 工作表1「製程」（第 22–32 列）</footer>
 </main>
+</div>
+
+<script>
+(function () {
+  var sheet = document.getElementById('sheet');
+  var radios = document.querySelectorAll('input[name="batch"]');
+  function apply() {
+    for (var i = 0; i < radios.length; i++) {
+      if (radios[i].checked) sheet.setAttribute('data-batch', radios[i].value);
+    }
+  }
+  for (var i = 0; i < radios.length; i++) radios[i].addEventListener('change', apply);
+  // 重新整理時瀏覽器可能會保留上次選的批量
+  apply();
+})();
+</script>
 </body>
 </html>
